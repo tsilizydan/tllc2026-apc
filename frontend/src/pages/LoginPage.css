@@ -1,0 +1,10 @@
+.login-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: var(--space-xl) var(--space-md); background: radial-gradient(ellipse at 30% 40%, rgba(0,212,255,0.06) 0%, transparent 60%), radial-gradient(ellipse at 70% 70%, rgba(139,92,246,0.06) 0%, transparent 60%); }
+.login-container { width: 100%; max-width: 420px; }
+.login-brand { text-align: center; margin-bottom: var(--space-xl); }
+.login-logo { font-family: var(--font-head); font-size: 2rem; font-weight: 700; letter-spacing: 0.15em; }
+.login-brand p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+.login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-xl); }
+.login-card .auth-toggle { display: flex; background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 4px; margin-bottom: var(--space-xl); }
+.login-card .auth-toggle button { flex: 1; padding: 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-muted); transition: all var(--t-fast); }
+.login-card .auth-toggle button.active { background: var(--accent-grad); color: #000; }
+.login-card .form-group { margin-bottom: var(--space-md); }

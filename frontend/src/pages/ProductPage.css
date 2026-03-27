@@ -1,0 +1,53 @@
+.pp-layout { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); padding: var(--space-xl) 0; }
+.breadcrumb { font-size: 0.82rem; color: var(--text-muted); padding: var(--space-lg) 0 0; }
+.breadcrumb a { color: var(--text-muted); } .breadcrumb a:hover { color: var(--accent-blue); }
+.breadcrumb span { color: var(--text-secondary); }
+/* Gallery */
+.pp-gallery { display: flex; flex-direction: column; gap: var(--space-md); }
+.pp-main-img { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 3/4; background: var(--bg-card); }
+.pp-main-img img { width: 100%; height: 100%; object-fit: cover; }
+.pp-thumbnails { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+.pp-thumb { width: 72px; height: 72px; border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--border); transition: border-color var(--t-fast); cursor: pointer; }
+.pp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pp-thumb.active { border-color: var(--accent-blue); }
+/* Info */
+.pp-meta   { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-bottom: var(--space-md); }
+.pp-title  { font-size: clamp(1.4rem, 3vw, 2.2rem); margin-bottom: var(--space-md); }
+.pp-rating { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-lg); font-size: 0.9rem; }
+.pp-price  { display: flex; align-items: baseline; gap: var(--space-sm); margin-bottom: var(--space-lg); flex-wrap: wrap; }
+.pp-price-final { font-family: var(--font-head); font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+.pp-price-orig  { font-size: 1rem; color: var(--text-muted); text-decoration: line-through; }
+.pp-short-desc  { color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-lg); }
+.pp-qty { display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-lg); }
+.pp-qty label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+.qty-control { display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.qty-control button { width: 36px; height: 36px; background: var(--bg-card); color: var(--text-primary); font-size: 1.1rem; transition: background var(--t-fast); }
+.qty-control button:hover { background: var(--bg-card-hover); }
+.qty-control span { min-width: 40px; text-align: center; font-weight: 600; }
+.pp-ctas { display: flex; gap: var(--space-md); margin-bottom: var(--space-xl); flex-wrap: wrap; }
+.pp-ctas .btn { flex: 1; min-width: 160px; }
+.pp-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); border-top: 1px solid var(--border); padding-top: var(--space-lg); }
+.pp-details-grid div { display: flex; flex-direction: column; gap: 2px; }
+.pp-details-grid span  { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.pp-details-grid strong { font-size: 0.9rem; }
+/* Tabs */
+.pp-tabs { border-top: 1px solid var(--border); margin-top: var(--space-xl); }
+.tab-bar { display: flex; gap: 0; }
+.tab-btn { padding: 16px 24px; font-family: var(--font-head); font-size: 0.95rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); border-bottom: 3px solid transparent; transition: all var(--t-fast); }
+.tab-btn:hover { color: var(--text-primary); }
+.tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+.tab-content { padding: var(--space-xl) 0; }
+.pp-description { color: var(--text-secondary); line-height: 1.8; max-width: 800px; }
+.pp-description p { margin-bottom: var(--space-md); }
+/* Reviews */
+.review-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-lg); margin-bottom: var(--space-md); }
+.review-header { display: flex; align-items: center; gap: var(--space-sm); margin-bottom: var(--space-sm); flex-wrap: wrap; }
+.review-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-grad); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #000; }
+.review-title { font-size: 0.95rem; margin: var(--space-xs) 0; }
+.review-body  { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
+/* Skeleton */
+.product-page-skeleton { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); margin-top: var(--space-xl); }
+@media (max-width: 900px) {
+  .pp-layout { grid-template-columns: 1fr; }
+  .product-page-skeleton { grid-template-columns: 1fr; }
+}
