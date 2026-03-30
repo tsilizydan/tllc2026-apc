@@ -1,0 +1,18 @@
+# /api/.htaccess
+# PHP files in this directory are served directly by Apache/PHP.
+# Disallow directory listing.
+Options -Indexes
+
+# These PHP files DO NOT go through the SPA fallback.
+# The root .htaccess has a RewriteRule that stops /api/* from being rewritten.
+
+# Set correct response headers for all PHP responses
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Only allow .php files to be executed (block any other type)
+<FilesMatch "^(?!.*\.php$).*$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

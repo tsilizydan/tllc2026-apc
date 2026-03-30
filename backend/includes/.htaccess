@@ -1,0 +1,3 @@
+# /includes/.htaccess — block all direct web access
+Order Allow,Deny
+Deny from all

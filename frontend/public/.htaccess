@@ -1,0 +1,114 @@
+# ============================================================
+# Apos'Creed — Apache Config for public_html root
+# Namecheap Shared Hosting (Apache + mod_rewrite)
+# ============================================================
+
+Options -Indexes
+ServerSignature Off
+
+RewriteEngine On
+
+# ── 1. FORCE HTTPS ──────────────────────────────────────────
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ── 2. ALLOW /api/* — pass directly to PHP, no interception ─
+# (MUST come before the SPA fallback rule)
+RewriteCond %{REQUEST_URI} ^/api(/|$) [NC]
+RewriteRule ^ - [L]
+
+# ── 3. BLOCK sensitive server-side directories directly ──────
+# These should not exist in public_html but are listed as a
+# safety net in case a future deployment includes them.
+RewriteCond %{REQUEST_URI} ^/(config|includes)(/|$) [NC]
+RewriteRule ^ - [F,L]
+
+# ── 4. SERVE STATIC ASSETS normally ─────────────────────────
+# Vite hashes asset filenames, so they can be cached forever.
+# Apache serves these without any intervention.
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# ── 5. SERVE REAL DIRECTORIES normally ──────────────────────
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ── 6. SPA FALLBACK — everything else → index.html ──────────
+# This makes /shop, /product/abc, /cart, /checkout, /dashboard
+# and /admin all load React. React Router handles the sub-route.
+# BrowserRouter requires this; with HashRouter this is optional.
+RewriteRule ^ /index.html [L]
+
+# ── SECURITY HEADERS ─────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header always set X-Frame-Options            "SAMEORIGIN"
+    Header always set X-XSS-Protection          "1; mode=block"
+    Header always set X-Content-Type-Options     "nosniff"
+    Header always set Referrer-Policy            "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy         "camera=(), microphone=(), geolocation=()"
+
+    # Allow cross-origin for fonts only
+    <FilesMatch "\.(woff2?|ttf|otf|eot)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# ── GZIP COMPRESSION ─────────────────────────────────────────
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/json
+    AddOutputFilterByType DEFLATE image/svg+xml text/xml
+    AddOutputFilterByType DEFLATE application/x-font-woff2
+</IfModule>
+
+# ── BROWSER CACHING ──────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # HTML: no caching (SPA entry point must always be fresh)
+    ExpiresByType text/html                      "access plus 0 seconds"
+
+    # Immutable hashed assets (Vite adds content hash to filenames)
+    ExpiresByType text/css                       "access plus 1 year"
+    ExpiresByType application/javascript         "access plus 1 year"
+
+    # Images
+    ExpiresByType image/webp                     "access plus 1 year"
+    ExpiresByType image/jpeg                     "access plus 1 year"
+    ExpiresByType image/png                      "access plus 1 year"
+    ExpiresByType image/gif                      "access plus 1 year"
+    ExpiresByType image/svg+xml                  "access plus 1 month"
+    ExpiresByType image/x-icon                   "access plus 1 month"
+
+    # Fonts
+    ExpiresByType font/woff2                     "access plus 1 year"
+    ExpiresByType application/x-font-woff         "access plus 1 year"
+</IfModule>
+
+# Cache-Control: max-age for immutable hashed assets
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css|woff2?)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.html$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+    </FilesMatch>
+</IfModule>
+
+# ── BLOCK SENSITIVE FILE TYPES ───────────────────────────────
+# NOTE: .json is NOT blocked — PHP API returns application/json
+<FilesMatch "\.(env|lock|md|sql|sh|log|bak|swp|orig)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ── CORRECT MIME TYPES ───────────────────────────────────────
+<IfModule mod_mime.c>
+    AddType application/javascript  .js .mjs
+    AddType text/css                .css
+    AddType image/svg+xml           .svg
+    AddType image/webp              .webp
+    AddType font/woff2              .woff2
+    AddType application/json        .json
+</IfModule>
