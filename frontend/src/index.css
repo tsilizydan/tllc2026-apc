@@ -25,6 +25,12 @@
   --border:        rgba(255,255,255,0.07);
   --border-accent: rgba(0, 212, 255, 0.3);
 
+  /* Glassmorphism */
+  --glass-bg:      rgba(22, 22, 37, 0.4);
+  --glass-border:  rgba(255, 255, 255, 0.08);
+  --glass-blur:    backdrop-filter: blur(16px);
+  --glass-glow:    0 4px 30px rgba(0, 0, 0, 0.2);
+
   --success:  #22c55e;
   --warning:  #f59e0b;
   --danger:   #ef4444;
@@ -141,13 +147,15 @@ h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); }
 
 /* ── Cards ───────────────────────────────── */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   overflow: hidden;
   transition: all var(--t-med);
 }
-.card:hover { border-color: var(--border-accent); box-shadow: var(--shadow-glow); }
+.card:hover { border-color: var(--border-accent); box-shadow: var(--glass-glow); background: rgba(22, 22, 37, 0.6); }
 
 /* ── Form Elements ───────────────────────── */
 .form-group { display: flex; flex-direction: column; gap: var(--space-xs); }
@@ -225,7 +233,7 @@ h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); }
 /* ── Grid ────────────────────────────────── */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-lg);
 }
 
@@ -239,8 +247,10 @@ h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); }
   padding: var(--space-md);
 }
 .modal {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-accent);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
   max-width: 520px;
@@ -277,10 +287,10 @@ h3 { font-size: clamp(1.2rem, 2.5vw, 1.6rem); }
 @media (max-width: 768px) {
   .container { padding: 0 var(--space-md); }
   .section   { padding: var(--space-xl) 0; }
-  .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--space-md); }
+  .product-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--space-md); }
   h1 { font-size: 2rem; }
 }
 @media (max-width: 480px) {
-  .product-grid { grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+  .product-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-sm); }
   .btn          { padding: 10px 20px; font-size: 0.9rem; }
 }
