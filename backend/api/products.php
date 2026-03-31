@@ -68,25 +68,26 @@ function list_products(PDO $db): void {
     $whereSQL = 'WHERE ' . implode(' AND ', $where);
     $offset   = ($page - 1) * $per_page;
 
-    // Total count
+    // Total count — use LEFT JOIN so uncategorised products still count
     $countStmt = $db->prepare(
         "SELECT COUNT(*) FROM products p
-         JOIN categories c ON c.id = p.category_id
+         LEFT JOIN categories c ON c.id = p.category_id
          $whereSQL"
     );
     $countStmt->execute($params);
     $total = (int)$countStmt->fetchColumn();
 
-    // Products
+    // Products — LEFT JOIN so items without a category are still returned
     $stmt = $db->prepare(
         "SELECT p.id, p.name, p.slug, p.short_description, p.cover_image,
                 p.price, p.discount_percent, p.final_price, p.platform,
                 p.is_digital, p.stock, p.release_date, p.is_featured,
-                c.name AS category_name, c.slug AS category_slug,
+                COALESCE(c.name, 'Uncategorised') AS category_name,
+                COALESCE(c.slug, '')              AS category_slug,
                 COALESCE(AVG(r.rating), 0) AS avg_rating,
                 COUNT(r.id) AS review_count
          FROM products p
-         JOIN categories c ON c.id = p.category_id
+         LEFT JOIN categories c ON c.id = p.category_id
          LEFT JOIN reviews r ON r.product_id = p.id AND r.is_approved = 1
          $whereSQL
          GROUP BY p.id
@@ -143,23 +144,31 @@ function single_product(PDO $db): void {
 
 function featured_products(PDO $db): void {
     $limit = min(20, max(4, (int)($_GET['limit'] ?? 8)));
-    $stmt  = $db->prepare(
-        "SELECT p.id, p.name, p.slug, p.short_description, p.cover_image,
+
+    // Try featured first; fall back to newest active products
+    $baseSelect = "SELECT p.id, p.name, p.slug, p.short_description, p.cover_image,
                 p.price, p.discount_percent, p.final_price, p.platform,
                 p.is_digital, p.stock,
-                c.name AS category_name, c.slug AS category_slug,
+                COALESCE(c.name, 'Uncategorised') AS category_name,
+                COALESCE(c.slug, '')              AS category_slug,
                 COALESCE(AVG(r.rating), 0) AS avg_rating,
                 COUNT(r.id) AS review_count
          FROM products p
-         JOIN categories c ON c.id = p.category_id
-         LEFT JOIN reviews r ON r.product_id = p.id AND r.is_approved = 1
-         WHERE p.is_featured = 1 AND p.is_active = 1
-         GROUP BY p.id
-         ORDER BY p.created_at DESC
-         LIMIT ?"
-    );
+         LEFT JOIN categories c ON c.id = p.category_id
+         LEFT JOIN reviews r ON r.product_id = p.id AND r.is_approved = 1";
+
+    $stmt = $db->prepare("$baseSelect WHERE p.is_featured = 1 AND p.is_active = 1 GROUP BY p.id ORDER BY p.created_at DESC LIMIT ?");
     $stmt->execute([$limit]);
-    success(format_product_list($stmt->fetchAll()));
+    $rows = $stmt->fetchAll();
+
+    // Fallback: if no featured products exist, return the newest active ones
+    if (empty($rows)) {
+        $stmt = $db->prepare("$baseSelect WHERE p.is_active = 1 GROUP BY p.id ORDER BY p.created_at DESC LIMIT ?");
+        $stmt->execute([$limit]);
+        $rows = $stmt->fetchAll();
+    }
+
+    success(format_product_list($rows));
 }
 
 function related_products(PDO $db): void {
