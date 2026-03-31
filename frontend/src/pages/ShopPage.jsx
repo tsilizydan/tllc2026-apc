@@ -119,7 +119,7 @@ export default function ShopPage() {
               {search && <span className="search-tag">"{search}" <button onClick={() => setParam('search', '')} >✕</button></span>}
               {!loading && <span className="result-count">{pagination.total} products</span>}
             </div>
-            <select className="form-input form-select sort-select"
+            <select className="sort-select form-select"
                     value={sort} onChange={e => setParam('sort', e.target.value)}>
               {SORTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
