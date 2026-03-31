@@ -1,11 +1,5 @@
 RewriteEngine On
 
-# If request is not already in /dist
+# Redirect root to /dist/
 RewriteCond %{REQUEST_URI} !^/dist/
-
-# If the requested file or directory does NOT exist in root
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Redirect everything to /dist
 RewriteRule ^(.*)$ /dist/$1 [L]
