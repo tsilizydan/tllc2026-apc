@@ -1,4 +1,5 @@
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
 import { ToastProvider } from './components/Toast'
@@ -52,8 +53,17 @@ function AppLayout() {
 }
 
 function App() {
+  // Handle legacy hash router URLs gracefully
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash && hash.startsWith('#/')) {
+      const path = hash.substring(1)
+      window.history.replaceState(null, '', path)
+    }
+  }, [])
+
   return (
-    <HashRouter>
+    <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
           <CartProvider>
@@ -61,7 +71,7 @@ function App() {
           </CartProvider>
         </AuthProvider>
       </ToastProvider>
-    </HashRouter>
+    </BrowserRouter>
   )
 }
 
