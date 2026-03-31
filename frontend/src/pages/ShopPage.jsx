@@ -41,29 +41,40 @@ export default function ShopPage() {
     setParams(next)
   }
 
-  const [error, setError]       = useState(null)
-
   useEffect(() => {
-    categoryService.list().then(r => setCats(r.data || [])).catch(err => console.error("Category fetch error:", err))
+    categoryService.list()
+      .then(r => setCats(r.data || []))
+      .catch(err => console.warn('Categories fetch failed:', err))
   }, [])
 
   useEffect(() => {
     setLoading(true)
-    setError(null)
     productService.list({ page, category, platform, sort, search, per_page: 12 })
-      .then(r => { 
+      .then(r => {
         setProducts(r.data.products || [])
-        setPagi(r.data.pagination || {}) 
+        setPagi(r.data.pagination || {})
       })
-      .catch((err) => {
-        console.error("Product fetch error:", err)
-        setError(err.message || 'Failed to fetch products')
-      })
+      .catch(err => console.warn('Products fetch failed:', err))
       .finally(() => setLoading(false))
   }, [page, category, platform, sort, search])
 
   return (
     <div className="page-wrapper shop-page">
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebar(false)}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.65)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+            zIndex: 299,
+          }}
+          aria-hidden="true"
+        />
+      )}
+
       <div className="container shop-layout">
         {/* Sidebar filter */}
         <aside className={`shop-sidebar${sidebarOpen ? ' open' : ''}`}>
@@ -78,7 +89,7 @@ export default function ShopPage() {
             <button className={`filter-chip${!category ? ' active' : ''}`} onClick={() => setParam('category', '')}>All</button>
             {categories.map(c => (
               <button key={c.id} className={`filter-chip${category === c.slug ? ' active' : ''}`}
-                      onClick={() => setParam('category', c.slug)}>{c.name}</button>
+                      onClick={() => { setParam('category', c.slug); setSidebar(false) }}>{c.name}</button>
             ))}
           </div>
 
@@ -88,13 +99,13 @@ export default function ShopPage() {
             <button className={`filter-chip${!platform ? ' active' : ''}`} onClick={() => setParam('platform', '')}>All Platforms</button>
             {PLATFORMS.map(p => (
               <button key={p} className={`filter-chip${platform === p ? ' active' : ''}`}
-                      onClick={() => setParam('platform', p)}>{p}</button>
+                      onClick={() => { setParam('platform', p); setSidebar(false) }}>{p}</button>
             ))}
           </div>
 
           {/* Reset */}
           <button className="btn btn-ghost btn-sm w-full" style={{marginTop: 24}}
-                  onClick={() => setParams({})}>Clear All Filters</button>
+                  onClick={() => { setParams({}); setSidebar(false) }}>Clear All Filters</button>
         </aside>
 
         {/* Main content */}
@@ -127,12 +138,6 @@ export default function ShopPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          ) : error ? (
-            <div className="shop-empty" style={{ borderColor: 'var(--danger)' }}>
-              <div className="empty-icon">⚠️</div>
-              <h3 style={{ color: 'var(--danger)' }}>Oops! Something went wrong</h3>
-              <p>{error}</p>
             </div>
           ) : products.length === 0 ? (
             <div className="shop-empty">
