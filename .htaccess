@@ -1,64 +1,11 @@
-# Apache config — public_html root
-# Apos'Creed
-
-Options -Indexes
-ServerSignature Off
-
 RewriteEngine On
 
-# 1. Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# If request is not already in /dist
+RewriteCond %{REQUEST_URI} !^/dist/
 
-# 2. Bypass /api/ requests — let PHP handle them
-RewriteCond %{REQUEST_URI} ^/api/ [NC]
-RewriteRule ^ - [L]
-
-# 3. Bypass /config/ and /includes/ — protected dirs (no direct access)
-RewriteCond %{REQUEST_URI} ^/(config|includes)/ [NC]
-RewriteRule ^ - [F,L]
-
-# 4. React SPA fallback — any non-file, non-directory request gets index.html
-#    (Only needed for direct URL entry; HashRouter handles client-side routing)
+# If the requested file or directory does NOT exist in root
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ /index.html [L]
 
-# Security headers
-<IfModule mod_headers.c>
-    Header always set X-Frame-Options "SAMEORIGIN"
-    Header always set X-XSS-Protection "1; mode=block"
-    Header always set X-Content-Type-Options "nosniff"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-</IfModule>
-
-# Gzip compression
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
-    AddOutputFilterByType DEFLATE image/svg+xml text/xml
-</IfModule>
-
-# Browser caching for static assets
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType image/webp          "access plus 1 year"
-    ExpiresByType image/jpeg          "access plus 1 year"
-    ExpiresByType image/png           "access plus 1 year"
-    ExpiresByType image/svg+xml       "access plus 1 month"
-    ExpiresByType text/css            "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-</IfModule>
-
-# Block direct access to sensitive file types (NOT .json — PHP API returns JSON)
-<FilesMatch "\.(env|lock|md|sql|sh|log)$">
-    Order Allow,Deny
-    Deny from all
-</FilesMatch>
-
-# Protect config and includes directories from direct web access
-<IfModule mod_authz_core.c>
-    <DirectoryMatch "^.*(config|includes)$">
-        Require all denied
-    </DirectoryMatch>
-</IfModule>
+# Redirect everything to /dist
+RewriteRule ^(.*)$ /dist/$1 [L]
