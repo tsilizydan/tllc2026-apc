@@ -11,14 +11,14 @@ require_once __DIR__ . '/../includes/response.php';
 $action = $_GET['action'] ?? 'list';
 $db     = Database::getInstance();
 
-match ($action) {
-    'list'     => list_products($db),
-    'single'   => single_product($db),
-    'featured' => featured_products($db),
-    'related'  => related_products($db),
-    'search'   => search_products($db),
-    default    => error('Unknown action.', 404),
-};
+switch ($action) {
+    case 'list':     list_products($db);    break;
+    case 'single':   single_product($db);   break;
+    case 'featured': featured_products($db); break;
+    case 'related':  related_products($db);  break;
+    case 'search':   search_products($db);   break;
+    default:         error('Unknown action.', 404);
+}
 
 // ─────────────────────────────────────────
 function list_products(PDO $db): void {
@@ -57,13 +57,11 @@ function list_products(PDO $db): void {
         $params[] = $like;
     }
 
-    $order = match ($sort) {
-        'price_asc'  => 'p.final_price ASC',
-        'price_desc' => 'p.final_price DESC',
-        'popular'    => 'p.views DESC',
-        'discount'   => 'p.discount_percent DESC',
-        default      => 'p.created_at DESC',
-    };
+    if ($sort === 'price_asc')      $order = 'p.final_price ASC';
+    elseif ($sort === 'price_desc') $order = 'p.final_price DESC';
+    elseif ($sort === 'popular')    $order = 'p.views DESC';
+    elseif ($sort === 'discount')   $order = 'p.discount_percent DESC';
+    else                            $order = 'p.created_at DESC';
 
     $whereSQL = 'WHERE ' . implode(' AND ', $where);
     $offset   = ($page - 1) * $per_page;
