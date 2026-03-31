@@ -41,15 +41,24 @@ export default function ShopPage() {
     setParams(next)
   }
 
+  const [error, setError]       = useState(null)
+
   useEffect(() => {
-    categoryService.list().then(r => setCats(r.data || [])).catch(() => {})
+    categoryService.list().then(r => setCats(r.data || [])).catch(err => console.error("Category fetch error:", err))
   }, [])
 
   useEffect(() => {
     setLoading(true)
+    setError(null)
     productService.list({ page, category, platform, sort, search, per_page: 12 })
-      .then(r => { setProducts(r.data.products || []); setPagi(r.data.pagination || {}) })
-      .catch(() => {})
+      .then(r => { 
+        setProducts(r.data.products || [])
+        setPagi(r.data.pagination || {}) 
+      })
+      .catch((err) => {
+        console.error("Product fetch error:", err)
+        setError(err.message || 'Failed to fetch products')
+      })
       .finally(() => setLoading(false))
   }, [page, category, platform, sort, search])
 
@@ -118,6 +127,12 @@ export default function ShopPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : error ? (
+            <div className="shop-empty" style={{ borderColor: 'var(--danger)' }}>
+              <div className="empty-icon">⚠️</div>
+              <h3 style={{ color: 'var(--danger)' }}>Oops! Something went wrong</h3>
+              <p>{error}</p>
             </div>
           ) : products.length === 0 ? (
             <div className="shop-empty">
