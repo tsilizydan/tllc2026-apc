@@ -6,16 +6,35 @@
 const BASE = import.meta.env.PROD ? '/api' : '/api'
 
 async function request(endpoint, options = {}) {
-  const res = await fetch(`${BASE}/${endpoint}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options,
-  })
-  const data = await res.json()
-  if (!data.success && res.status >= 400) {
-    throw new Error(data.message || 'Request failed')
+  try {
+    const res = await fetch(`${BASE}/${endpoint}`, {
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+      ...options,
+    })
+    
+    // Check if the response is actually OK before parsing
+    if (!res.ok && res.status === 404) {
+      throw new Error(`API endpoint not found (404). Check if the backend is deployed correctly at ${BASE}.`)
+    }
+
+    const text = await res.text()
+    let data;
+    try {
+      data = JSON.parse(text)
+    } catch(e) {
+      console.error(`API response is not JSON. Received: ${text.substring(0, 100)}...`)
+      throw new Error('Invalid JSON response from server. Check your backend deployment and endpoint paths.')
+    }
+
+    if (!data.success && res.status >= 400) {
+      throw new Error(data.message || 'Request failed')
+    }
+    return data
+  } catch (error) {
+    console.error(`API Error on [${endpoint}]:`, error.message)
+    throw error
   }
-  return data
 }
 
 export const api = {
